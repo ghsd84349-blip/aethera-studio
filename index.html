@@ -2026,5 +2026,61 @@
       initContactModal();
     });
   </script>
-</body>
+<style>
+  /* 1. Намертво чиним клики на смартфонах */
+  canvas {
+    pointer-events: none !important;
+    z-index: 1 !important;
+  }
+  button, a, .slider-btn, input, [role="button"] {
+    position: relative !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+  }
+
+  /* 2. Адаптив для мобилок (выравнивание плашек и заголовка) */
+  @media (max-width: 768px) {
+    /* Чиним обрезку букв в главном заголовке */
+    h1, .hero-title {
+      line-height: 1.2 !important;
+      overflow: visible !important;
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+    }
+    /* Уменьшаем и выравниваем плашки 120+ и 18+, чтобы не лезли на шар */
+    div[class*="badge"], div[class*="stat"], span[class*="badge"] {
+      font-size: 11px !important;
+      padding: 4px 8px !important;
+    }
+  }
+</style>
+
+<script>
+  // 3. Автоматически добавляем свайпы для слайдера на телефонах
+  document.addEventListener("DOMContentLoaded", () => {
+    const slider = document.querySelector('[class*="slider"]') || document.querySelector('.slider-container');
+    if (slider) {
+      let touchStartX = 0;
+      let touchEndX = 0;
+      slider.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+      slider.addEventListener('touchend', e => { 
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        const nextBtn = document.querySelector('[class*="next"]') || document.querySelector('.next-btn');
+        const prevBtn = document.querySelector('[class*="prev"]') || document.querySelector('.prev-btn');
+        if (diff > 50 && nextBtn) nextBtn.click();
+        if (diff < -50 && prevBtn) prevBtn.click();
+      }, { passive: true });
+    }
+    
+    // 4. Оживляем шар на касания (сработает, если переменные движения в коде глобальные)
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0 && typeof targetX !== 'undefined' && typeof targetY !== 'undefined') {
+        const touch = e.touches[0];
+        targetX = (touch.clientX - window.innerWidth / 2) * 0.05;
+        targetY = (touch.clientY - window.innerHeight / 2) * 0.05;
+      }
+    }, { passive: true });
+  });
+</script></body>
 </html>
